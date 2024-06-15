@@ -15,6 +15,7 @@ To label our image data, we should follow these steps:
 1. Set up the Amazon SageMaker Studio domain
 2. Set up a SageMaker Studio notebook
 3. Create the labeling job
+   
     3.1. Run the following code in the Jupyter Notebook to download:
     ```
     import sagemaker
