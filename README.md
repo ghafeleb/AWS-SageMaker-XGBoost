@@ -15,7 +15,7 @@ To label our image data, we should follow these steps:
 1. Set up the Amazon SageMaker Studio domain
 2. Set up a SageMaker Studio notebook
 3. Create the labeling job
-  3.1. Run the following code in the Jupyter Notebook to download
+  1. Run the following code in the Jupyter Notebook to download
 ```
 import sagemaker
 
@@ -24,7 +24,8 @@ bucket = sess.default_bucket()
 
 !aws s3 sync s3://sagemaker-sample-files/datasets/image/caltech-101/inference/ s3://{bucket}/ground-truth-demo/images/
 ```
-  3.2. Assign the labeling job to Amazon Mechanical Turk. The result for the sample data is:
+  2. Assign the labeling job to Amazon Mechanical Turk. The result for the sample data is:
+
 <p align="center">
 <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="50%" alt="Labeled data"/>
   <br>
