@@ -7,7 +7,7 @@
 
 
 <p align="justify">
-This repository is a collection of tutorial steps that showcase my skills and learning journey with AWS SageMaker. AWS SageMaker is a fully managed service that provides every developer and data scientist with the ability to build, train, and deploy machine learning (ML) models quickly.
+This repository is a collection of tutorial steps that showcase my skills and learning journey with AWS SageMaker. AWS SageMaker is a fully managed service that provides every developer and data scientist with the ability to build, train, and deploy machine learning (ML) models quickly. The prerequisite of all the steps is creating an AWS account.
 </p>
 
 # Labelling Data 
