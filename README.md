@@ -35,3 +35,6 @@ In this section, we label samples from <a href="https://data.caltech.edu/records
     ```
     {"source-ref":"s3://****/image_0007.jpeg","vehicle-labeling-demo":3,"vehicle-labeling-demo-metadata":{"class-name":"Helicopter","job-name":"labeling-job/vehicle-labeling-demo","confidence":0.49,"type":"groundtruth/image-classification","human-annotated":"yes","creation-date":"****"}}    
     ```
+
+#  Build and Train a Machine Learning Model Locally
+This section utilizes the XGBoost framework to prototype a binary classification model to predict fraudulent claims on a synthetic auto insurance claims dataset.
