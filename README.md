@@ -25,7 +25,7 @@ To label our image data, we should follow these steps:
     ```
     3.2. Assign the labeling job to Amazon Mechanical Turk. The result for the sample data is
     <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="50%" alt="Labeled data"/>
+    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="75%" alt="Labeled data"/>
       <br>
       <em></em>
     </p>
