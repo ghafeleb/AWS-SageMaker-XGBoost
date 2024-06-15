@@ -1,0 +1,13 @@
+.ipynb_checkpoints/
+.python-version
+*.pyc
+.egg-info/
+.pytest_cache/
+.ruff_cache/
+wandb/
+
+# data is too big to track and store with Github
+*.parquet
+*.pck
+# Ignore all CSV files in a specific folder
+data/realtime_nyc/Y*/
