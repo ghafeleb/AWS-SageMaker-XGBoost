@@ -11,7 +11,7 @@
 This repository is a collection of tutorial steps that showcase my skills and learning journey with AWS SageMaker. AWS SageMaker is a fully managed service that provides every developer and data scientist with the ability to build, train, and deploy machine learning (ML) models quickly. The prerequisite of all the steps is creating an AWS account.
 </p>
 
-# Labelling Data 
+# Labeling Data 
 In this section, we label samples from <a href="https://data.caltech.edu/records/mzrjq-6wc02">Caltech 101 dataset</a> using Amazon Mechanical Turk. To label our image data, we should follow these steps:
 1. Set up the Amazon SageMaker Studio domain
 2. Set up a SageMaker Studio notebook
