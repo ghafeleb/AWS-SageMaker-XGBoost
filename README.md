@@ -1,1 +1,1 @@
-# AWS_SageMaker
+# AWS SageMaker
