@@ -11,7 +11,7 @@ This repository is a collection of tutorial steps that showcase my skills and le
 </p>
 
 # Labelling Data 
-To label our image data, we should follow these steps:
+In this section, we label samples from Caltech 101 data using Amazon Mechanical Turk. To label our image data, we should follow these steps:
 1. Set up the Amazon SageMaker Studio domain
 2. Set up a SageMaker Studio notebook
 3. Create the labeling job
