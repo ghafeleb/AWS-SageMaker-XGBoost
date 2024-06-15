@@ -8,7 +8,7 @@
 
 
 <p align="justify">
-This repository is a collection of tutorial steps that showcase my skills and learning journey with AWS SageMaker. AWS SageMaker is a fully managed service that provides every developer and data scientist with the ability to build, train, and deploy machine learning (ML) models quickly. The prerequisite of all the steps is creating an AWS account.
+This repository is a collection of tutorial steps that showcase my skills and learning journey with AWS SageMaker following <a href="https://aws.amazon.com/sagemaker/getting-started/?refid=ap_card">Amazon SageMaker Tutorials</a>. AWS SageMaker is a fully managed service that provides every developer and data scientist with the ability to build, train, and deploy machine learning (ML) models quickly. The prerequisite of all the steps is creating an AWS account.
 </p>
 
 # Labeling Data 
@@ -37,4 +37,6 @@ In this section, we label samples from <a href="https://data.caltech.edu/records
     ```
 
 #  Build and Train a Machine Learning Model Locally
-This section utilizes the XGBoost framework to prototype a binary classification model to predict fraudulent claims on a synthetic auto insurance claims dataset.
+This section utilizes the XGBoost framework to prototype a binary classification model to predict fraudulent claims on a synthetic auto insurance claims dataset. The steps are:
+1. Create a new notebook file on SageMaker Studio.
+2. 
