@@ -558,13 +558,16 @@ clarify_processor.run_bias(
 
 clarify_bias_job_name = clarify_processor.latest_job.name
 ```
+
 17. As the [report](2_train_an_ml_model/SageClarifyReport.pdf) shows, there is a pre-existing class imbalance w.r.t. the gender in our data:
 <p align="center">
 <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/class_imbalance" width="95%" alt="Tuning"/>
   <br>
   <em></em>
 </p>
+
 18. We can also check the feature attribution which quantifies the amount of the effect of the each feature on the final prediction. We use SHAP values to compute the contribution of features to the outcome:
+
 ```
 explainability_data_config = sagemaker.clarify.DataConfig(
     s3_data_input_path=train_data_uri,
@@ -590,4 +593,5 @@ clarify_processor.run_explainability(
     explainability_config=shap_config
 )
 ```
+
 19. 
