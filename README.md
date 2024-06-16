@@ -129,7 +129,7 @@ metrics_data = {
 print(f"Cross-validated train-auc:{cv_results.iloc[-1]['train-auc-mean']:.2f}")
 print(f"Cross-validated validation-auc:{cv_results.iloc[-1]['test-auc-mean']:.2f}")
 ```
-The trained model shows 0.9 cross-validated train-AUC and 0.78 cross-validated validation-AUC. By increasing the early_stopping_rounds to 100, our training-AUC improves to 0.99, but the validation-auc drops to 0.74 due to severe overfitting:
+The trained model shows cross-validated train-AUC of 0.9 and cross-validated validation-AUC of 0.78. By increasing the early_stopping_rounds to 100, our training-AUC improves to 0.99, but the validation-auc drops to 0.74 due to severe overfitting:
     <p align="center">
     <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_overfit.png" width="95%" alt="Overfitting in XGBoost"/>
       <br>
@@ -161,7 +161,7 @@ train_auc = roc_auc_score(train_label, train_pred)
 
 print(f"Train-auc:{train_auc:.2f}, Test-auc:{test_auc:.2f}")
 ```
-The trained model shows 0.95 train-AUC and 0.85 test-AUC. 
+The trained model shows train-AUC=0.95 and test-AUC=0.85. 
 
 7. Finally, save the model and its performance results as JSON files:
 ```
