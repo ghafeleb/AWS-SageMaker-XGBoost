@@ -454,7 +454,7 @@ tuner.wait()
 ```
 We can check the Hyperparameter tuning jobs subsection at the AWS StageMaker console to see the info on tuning jobs:
 <p align="center">
-<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/tuning_jobs.png" width="75%" alt="Hyperparameter tuning jobs"/>
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/tuning_jobs.png" width="85%" alt="Hyperparameter tuning jobs"/>
   <br>
   <em></em>
 </p>
@@ -468,7 +468,7 @@ df_tuner
 ```
 Based on the summary of results, the second set of parameters outperforms others and shows AUC of 0.82:
 <p align="center">
-<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_tuning_summary.png" width="75%" alt="Tuning"/>
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_tuning_summary.png" width="95%" alt="Tuning"/>
   <br>
   <em></em>
 </p>
