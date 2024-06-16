@@ -632,3 +632,22 @@ We can also check the results of Clarify for bias analysis and explainability an
 </p>
 For this customer, the incident day has the maximum contribution.
 
+## Deploy the model to a real-time inference endpoint
+
+21. We want to utilize the best model that was selected from our tuning and use it at the real-time inference endpoint. For this purpose, we use SageMaker SDK.
+
+22. Now, we can deploy the model. For instance:
+```
+# Sample test data
+for i in range(3):
+    test_df = pd.read_csv(test_data_uri)
+    payload = test_df.drop(["fraud"], axis=1).iloc[i].to_list()
+    print(f"Model predicted score : {float(predictor.predict(payload)[0][0]):.3f}, True label : {test_df['fraud'].iloc[0]}")
+```
+The results are:
+<p align="center">
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/deployed_model.png" width="95%" alt="deployed_model"/>
+  <br>
+  <em></em>
+</p>
+The scores are very close to the true label that show the power of our model in correct prediction.
