@@ -650,4 +650,4 @@ The results are:
   <br>
   <em></em>
 </p>
-The scores are very close to the true label that show the power of our model in correct prediction.
+The scores are very close to the true label, which shows the power of our model incorrect prediction.
