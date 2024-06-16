@@ -162,6 +162,7 @@ train_auc = roc_auc_score(train_label, train_pred)
 print(f"Train-auc:{train_auc:.2f}, Test-auc:{test_auc:.2f}")
 ```
 The trained model shows 0.95 train-AUC and 0.85 test-AUC. 
+
 7. Finally, save the model and its performance results as JSON files:
 ```
 # Save model and performance metrics locally
