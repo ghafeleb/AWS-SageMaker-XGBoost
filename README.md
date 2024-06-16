@@ -11,6 +11,14 @@
 This repository is a collection of tutorial steps that showcase my skills and learning journey with AWS SageMaker following <a href="https://aws.amazon.com/sagemaker/getting-started/?refid=ap_card">Amazon SageMaker tutorials</a>. AWS SageMaker is a fully managed service that provides every developer and data scientist with the ability to build, train, and deploy machine learning (ML) models quickly. The prerequisite of all the steps is creating an AWS account.
 </p>
 
+## Contents
+
+1. [Labeling Data ](#labeling-data)
+2. [Build and Train a Machine Learning Model Locally](#build-and-train-a-machine-learning-model-locally)
+   - [Overfitting Analysis](#overfitting-analysis)
+
+---
+
 # Labeling Data 
 In this section, we label samples from  using Amazon Mechanical Turk. To label our image data, we should follow these steps:
 1. Set up the Amazon SageMaker Studio domain
