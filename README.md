@@ -16,6 +16,10 @@ This repository is a collection of tutorial steps that showcase my skills and le
 1. [Labeling Data ](#labeling-data)
 2. [Build and Train a Machine Learning Model Locally](#build-and-train-a-machine-learning-model-locally)
    - [Overfitting Analysis](#overfitting-analysis)
+3. [Train, Tune, and Evaluate a Machine Learning Model (XGBoost)](#train,-tune,-and-evaluate-a-machine-learning-model-(xgboost))
+   - [Script Mode Hyperparameter Tuning of the SageMaker Estimator](#script-mode-hyperparameter-tuning-of-the-sagemaker-estimator)
+   - [SageMaker Clarify: Check the Biases of the Model Explain the Model Predictions](#sagemaker-clarify:-check-the-biases-of-the-model-explain-the-model-predictions)
+   - [Deploy the Model to a Real-time Inference Endpoint](#deploy-the-model-to-a-real-time-inference-endpoint)
 
 ---
 
@@ -474,7 +478,7 @@ Based on the summary of results, the second set of parameters outperforms others
   <em></em>
 </p>
 
-## SageMaker Clarify: check the biases of the model explain the model predictions
+## SageMaker Clarify: Check the Biases of the Model Explain the Model Predictions
 12. We use SageMaker Clarify to find biases based on feature attribution method. Create a duplicate of the best model based on the tuning results:
 ```
 tuner_job_info = sagemaker_client.describe_hyper_parameter_tuning_job(HyperParameterTuningJobName=tuner.latest_tuning_job.job_name)
