@@ -274,12 +274,13 @@ training_job_name_prefix = "xgbtrain"
 xgb_model_name = "fraud-detect-xgb-model"
 endpoint_name_prefix = "xgb-fraud-model-dev"
 train_instance_count = 1
-train_instance_type = "ml.m4.xlarge"
+train_instance_type = "ml.m5.xlarge"
 predictor_instance_count = 1
-predictor_instance_type = "ml.m4.xlarge"
+predictor_instance_type = "ml.m5.xlarge"
 clarify_instance_count = 1
-clarify_instance_type = "ml.m4.xlarge"
+clarify_instance_type = "ml.m5.xlarge"
 ```
+Note: You may need to request an increase in your quota by submitting request on <a href="https://docs.aws.amazon.com/servicequotas/latest/userguide/request-quota-increase.html"></a> for `ml.m5.xlarge for processing job usage`
 ## Script Mode Hyperparameter Tuning of the SageMaker Estimator
 7. Define the training process including parameter definition, model creation, training, and performance evaluation as the following script:
 ```
@@ -425,7 +426,7 @@ hyperparameter_ranges = {
 | `colsample_bytree`| Fraction of features used per tree. Using a subset of features adds randomness and improves generalizability. |
 | `max_depth`       | Maximum depth of a tree. Higher values increase model complexity and the risk of overfitting.                 |
 
-9. Set the hyperparameter tuner with random search process and AUC as the performance measure:
+9. Set the hyperparameter tuner with a random search process and AUC as the performance measure:
 ```
 objective_metric_name = "validation:auc"
 
@@ -452,7 +453,7 @@ s3_input_validation = (TrainingInput(s3_data="s3://{}/{}".format(read_bucket, va
 tuner.fit(inputs={"train": s3_input_train, "validation": s3_input_validation}, include_cls_metadata=False)
 tuner.wait()
 ```
-We can check the Hyperparameter tuning jobs subsection at the AWS StageMaker console to see the info on tuning jobs:
+We can check the Hyperparameter tuning jobs subsection at the AWS SageMaker console to see the info on tuning jobs:
 <p align="center">
 <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/tuning_jobs.png" width="85%" alt="Hyperparameter tuning jobs"/>
   <br>
@@ -472,6 +473,121 @@ Based on the summary of results, the second set of parameters outperforms others
   <br>
   <em></em>
 </p>
-13. 
-12. 
 
+## SageMaker Clarify: check the biases of the model explain the model predictions
+12. We use SageMaker Clarify to find biases based on feature attribution method. Create a duplicate of the best model based on the tuning results:
+```
+tuner_job_info = sagemaker_client.describe_hyper_parameter_tuning_job(HyperParameterTuningJobName=tuner.latest_tuning_job.job_name)
+
+model_matches = sagemaker_client.list_models(NameContains=xgb_model_name)["Models"]
+
+if not model_matches:
+    _ = sess.create_model_from_job(
+            name=xgb_model_name,
+            training_job_name=tuner_job_info['BestTrainingJob']["TrainingJobName"],
+            role=sagemaker_role,
+            image_uri=tuner_job_info['TrainingJobDefinition']["AlgorithmSpecification"]["TrainingImage"]
+            )
+else:
+
+    print(f"Model {xgb_model_name} already exists.")
+```
+13. Define the configs for the SageMaker Clarify to check whether there is a bias based on the gender toward female users in the data:
+```
+train_df = pd.read_csv(train_data_uri)
+train_df_cols = train_df.columns.to_list()
+
+clarify_processor = sagemaker.clarify.SageMakerClarifyProcessor(
+    role=sagemaker_role,
+    instance_count=clarify_instance_count,
+    instance_type=clarify_instance_type,
+    sagemaker_session=sess,
+)
+
+# Data config
+bias_data_config = sagemaker.clarify.DataConfig(
+    s3_data_input_path=train_data_uri,
+    s3_output_path=bias_report_output_uri,
+    label="fraud",
+    headers=train_df_cols,
+    dataset_type="text/csv",
+)
+
+# Model config
+model_config = sagemaker.clarify.ModelConfig(
+    model_name=xgb_model_name,
+    instance_type=train_instance_type,
+    instance_count=1,
+    accept_type="text/csv",
+)
+
+# Model predictions config to get binary labels from probabilities
+predictions_config = sagemaker.clarify.ModelPredictedLabelConfig(probability_threshold=0.5)
+
+# Bias config
+bias_config = sagemaker.clarify.BiasConfig(
+    label_values_or_threshold=[0],
+    facet_name="customer_gender_female",
+    facet_values_or_threshold=[1],
+)
+```
+
+15. To check the pre-existing bias, we check the Class Imbalance (CI). To check the posttraining bias statistics, we use Difference in Positive Proportions in Predicted Labels (DPPL).
+```
+clarify_processor.run_bias(
+    data_config=bias_data_config,
+    bias_config=bias_config,
+    model_config=model_config,
+    model_predicted_label_config=predictions_config,
+    pre_training_methods=["CI"],
+    post_training_methods=["DPPL"]
+    )
+
+clarify_bias_job_name = clarify_processor.latest_job.name
+```
+16. Download the SageMaker Clarify results in a PDF format from Amazon S3 Bucket to your local directory in SageMaker Studio:
+```
+clarify_processor.run_bias(
+    data_config=bias_data_config,
+    bias_config=bias_config,
+    model_config=model_config,
+    model_predicted_label_config=predictions_config,
+    pre_training_methods=["CI"],
+    post_training_methods=["DPPL"]
+    )
+
+clarify_bias_job_name = clarify_processor.latest_job.name
+```
+17. As the [report](2_train_an_ml_model/SageClarifyReport.pdf) shows, there is a pre-existing class imbalance w.r.t. the gender in our data:
+<p align="center">
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/class_imbalance" width="95%" alt="Tuning"/>
+  <br>
+  <em></em>
+</p>
+18. We can also check the feature attribution which quantifies the amount of the effect of the each feature on the final prediction. We use SHAP values to compute the contribution of features to the outcome:
+```
+explainability_data_config = sagemaker.clarify.DataConfig(
+    s3_data_input_path=train_data_uri,
+    s3_output_path=explainability_report_output_uri,
+    label="fraud",
+    headers=train_df_cols,
+    dataset_type="text/csv",
+)
+
+# Use mean of train dataset as baseline data point
+shap_baseline = [list(train_df.drop(["fraud"], axis=1).mean())]
+
+shap_config = sagemaker.clarify.SHAPConfig(
+    baseline=shap_baseline,
+    num_samples=500,
+    agg_method="mean_abs",
+    save_local_shap_values=True,
+)
+
+clarify_processor.run_explainability(
+    data_config=explainability_data_config,
+    model_config=model_config,
+    explainability_config=shap_config
+)
+```
+19. 
