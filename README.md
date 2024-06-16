@@ -129,18 +129,7 @@ metrics_data = {
 print(f"Cross-validated train-auc:{cv_results.iloc[-1]['train-auc-mean']:.2f}")
 print(f"Cross-validated validation-auc:{cv_results.iloc[-1]['test-auc-mean']:.2f}")
 ```
-The trained model shows cross-validated train-AUC of 0.9 and cross-validated validation-AUC of 0.78. By increasing the early_stopping_rounds to 100, our training-AUC improves to 0.99, but the validation-auc drops to 0.74 due to severe overfitting:
-    <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_overfit.png" width="95%" alt="Overfitting in XGBoost"/>
-      <br>
-      <em></em>
-    </p>
-    By reducing the ratio of features used (i.e. columns used), we get the optimal validation-AUC 0.79 by reducing the overfitting:
-    <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_improved.png" width="95%" alt="Reduce overfitting in XGBoost"/>
-      <br>
-      <em></em>
-    </p>
+The trained model shows cross-validated train-AUC of 0.9 and cross-validated validation-AUC of 0.78. 
 6. After tuning, we train the model with the complete data:
 ```
 data = pd.read_csv(test_data_uri)
@@ -176,3 +165,18 @@ model_location = model_key + "/xgboost-model"
 s3_client.upload_file(Filename="./metrics.json", Bucket=write_bucket, Key=metrics_location)
 s3_client.upload_file(Filename="./xgboost-model", Bucket=write_bucket, Key=model_location)
 ```
+
+
+## Overfitting Analysis
+By increasing the early_stopping_rounds to 100, our training-AUC improves to 0.99, but the validation-auc drops to 0.74 due to severe overfitting:
+    <p align="center">
+    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_overfit.png" width="95%" alt="Overfitting in XGBoost"/>
+      <br>
+      <em></em>
+    </p>
+    By reducing the ratio of features used (i.e. columns used), we get the optimal validation-AUC 0.79 by reducing the overfitting:
+    <p align="center">
+    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_improved.png" width="95%" alt="Reduce overfitting in XGBoost"/>
+      <br>
+      <em></em>
+    </p>
