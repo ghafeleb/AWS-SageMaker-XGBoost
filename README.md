@@ -45,7 +45,22 @@ In this section, we label samples from  using Amazon Mechanical Turk. To label o
     ```
 
 #  Build and Train a Machine Learning Model Locally
-This section utilizes the XGBoost framework to prototype a binary classification model to predict fraudulent claims on a synthetic auto insurance claims dataset. The steps are:
+This section utilizes the XGBoost framework to prototype a binary classification model to predict fraudulent claims on synthetic auto insurance claims dataset. 
+
+## Sample Data Table
+We will use a synthetically generated auto insurance claims dataset about claims and customers, along with a fraud column indicating whether a claim was fraudulent or otherwise. 
+| Claim ID | Customer ID | Claim Amount | Age  | Vehicle Type | Accident Date | Claim Date  | Fraudulent |
+|----------|-------------|--------------|------|--------------|---------------|-------------|------------|
+| 001      | 1001        | 5000         | 45   | Car          | 2023-01-01    | 2023-01-10  | No         |
+| 002      | 1002        | 7000         | 34   | Truck        | 2023-01-05    | 2023-01-15  | Yes        |
+| 003      | 1003        | 3000         | 29   | Car          | 2023-01-03    | 2023-01-12  | No         |
+| 004      | 1004        | 10000        | 54   | SUV          | 2023-01-07    | 2023-01-17  | Yes        |
+| 005      | 1005        | 2000         | 41   | Car          | 2023-01-02    | 2023-01-11  | No         |
+
+*Note: This is a sample representation of the data. The actual dataset has different values and contains more features and records.*
+
+## Training Model
+In this section, we train the XGBoost framework to build a binary classification model on the synthetic dataset to predict the likelihood of a claim being fraudulent. The steps for training our XGBoost model on AWS are as follows:
 1. Create a new notebook file on SageMaker Studio. Use <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/notebooks-available-images.html">`Data Science 2.0`</a> image that includes the most commonly used Python packages and libraries.
 2. Update aiobotocore and install xgboost package:
 ```
@@ -188,3 +203,6 @@ By increasing the early_stopping_rounds to 100, our training-AUC improves to 0.9
       <br>
       <em></em>
     </p>
+
+# Train, Tune, and Evaluate a Machine Learning Model (XGBoost)
+This section trains, tunes, and evaluates a machine learning model using Amazon SageMaker Studio and Amazon SageMaker Clarify. We'll use a synthetic auto insurance claims dataset to build a binary classification model with the XGBoost framework, aimed at predicting fraudulent claims. Additionally, you'll learn how to detect bias in your model and understand its predictions, deploy the model to a real-time inference endpoint, and evaluate its performance through sample predictions and feature impact analysis.
