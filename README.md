@@ -1,6 +1,6 @@
 # AWS SageMaker
 <p align="center">
-<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/aws_sagemaker_icon.png" width="50%" alt="AWS SageMaker"/>
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/aws_sagemaker_icon.png" width="75%" alt="AWS SageMaker"/>
   <br>
   <em></em>
 </p>
@@ -26,7 +26,7 @@ In this section, we label samples from  using Amazon Mechanical Turk. To label o
     ```
     3.2. Assign the labeling job to Amazon Mechanical Turk. The result for the sample data is
     <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="75%" alt="Labeled data"/>
+    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="85%" alt="Labeled data"/>
       <br>
       <em></em>
     </p>
@@ -131,13 +131,13 @@ print(f"Cross-validated validation-auc:{cv_results.iloc[-1]['test-auc-mean']:.2f
 ```
 The trained model shows 0.9 cross-validated train-AUC and 0.78 cross-validated validation-AUC. By increasing the early_stopping_rounds to 100, our training-AUC improves to 0.99, but the validation-auc drops to 0.74 due to severe overfitting:
     <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_overfit.png" width="75%" alt="Overfitting in XGBoost"/>
+    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_overfit.png" width="95%" alt="Overfitting in XGBoost"/>
       <br>
       <em></em>
     </p>
     By reducing the ratio of features used (i.e. columns used), we get the optimal validation-AUC 0.79 by reducing the overfitting:
     <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_improved.png" width="75%" alt="Reduce overfitting in XGBoost"/>
+    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_improved.png" width="95%" alt="Reduce overfitting in XGBoost"/>
       <br>
       <em></em>
     </p>
