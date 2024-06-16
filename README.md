@@ -559,7 +559,7 @@ clarify_processor.run_bias(
 clarify_bias_job_name = clarify_processor.latest_job.name
 ```
 
-17. As the [report](2_train_an_ml_model/clarify_bias_output.pdf) shows, there is a pre-existing class imbalance w.r.t. the gender in our data such that females are proportionally less than men:
+17. As the [report](3_train_an_ml_model/clarify_bias_output.pdf) shows, there is a pre-existing class imbalance w.r.t. the gender in our data such that females are proportionally less than men:
 <p align="center">
 <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/class_imbalance.png" width="50%" alt="Tuning"/>
   <br>
@@ -599,7 +599,7 @@ clarify_processor.run_explainability(
 # Copy explainability report and view
 !aws s3 cp s3://{write_bucket}/{write_prefix}/clarify-output/explainability/report.pdf ./clarify_explainability_output.pdf
 ```
-The explainability analysis report is provided in [clarify_explanability_output.pdf](2_train_an_ml_model/clarify_explanability_output.pdf). Based on this report, the feature with the most contribution to our output is customer_gender_male:
+The explainability analysis report is provided in [clarify_explanability_output.pdf](3_train_an_ml_model/clarify_explanability_output.pdf). Based on this report, the feature with the most contribution to our output is customer_gender_male:
 <p align="center">
 <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/global_shap.png" width="85%" alt="clarify_explanability_output"/>
   <br>
@@ -650,4 +650,4 @@ The results are:
   <br>
   <em></em>
 </p>
-The scores are very close to the true label that show the power of our model in correct prediction.
+The scores are very close to the true label, which shows the power of our model incorrect prediction.
