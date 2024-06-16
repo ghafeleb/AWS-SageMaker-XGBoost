@@ -561,7 +561,7 @@ clarify_bias_job_name = clarify_processor.latest_job.name
 
 17. As the [report](2_train_an_ml_model/clarify_bias_output.pdf) shows, there is a pre-existing class imbalance w.r.t. the gender in our data such that females are proportionally less than men:
 <p align="center">
-<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/class_imbalance.png" width="65%" alt="Tuning"/>
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/class_imbalance.png" width="50%" alt="Tuning"/>
   <br>
   <em></em>
 </p>
@@ -614,12 +614,21 @@ The explainability analysis report is provided in [clarify_explanability_output.
 
 We can also check the results of Clarify for bias analysis and explainability analysis under the Experiments section of the SageMaker Studio:
 <p align="center">
-<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/bias.png" width="85%" alt="clarify_bias_plot"/>
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/bias.png" width="95%" alt="clarify_bias_plot"/>
   <br>
   <em></em>
 </p>
 <p align="center">
-<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/explainability.png" width="85%" alt="clarify_explanability_plot"/>
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/explainability.png" width="95%" alt="clarify_explanability_plot"/>
   <br>
   <em></em>
 </p>
+
+20. We can also check the contribution of each feature on the prediction output for every individual sample. We check test sample 100:
+<p align="center">
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/local_explanation_sample100.png" width="95%" alt="local_explanation_sample100"/>
+  <br>
+  <em></em>
+</p>
+For this customer, the incident day has the maximum contribution.
+
