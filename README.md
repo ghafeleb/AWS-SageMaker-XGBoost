@@ -26,7 +26,7 @@ In this section, we label samples from  using Amazon Mechanical Turk. To label o
     ```
     3.2. Assign the labeling job to Amazon Mechanical Turk. The result for the sample data is
     <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="85%" alt="Labeled data"/>
+    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="95%" alt="Labeled data"/>
       <br>
       <em></em>
     </p>
