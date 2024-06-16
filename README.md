@@ -425,4 +425,53 @@ hyperparameter_ranges = {
 | `colsample_bytree`| Fraction of features used per tree. Using a subset of features adds randomness and improves generalizability. |
 | `max_depth`       | Maximum depth of a tree. Higher values increase model complexity and the risk of overfitting.                 |
 
-9. 
+9. Set the hyperparameter tuner with random search process and AUC as the performance measure:
+```
+objective_metric_name = "validation:auc"
+
+# Setting up tuner object
+tuner_config_dict = {
+                     "estimator" : xgb_estimator,
+                     "max_jobs" : 5,
+                     "max_parallel_jobs" : 2,
+                     "objective_metric_name" : objective_metric_name,
+                     "hyperparameter_ranges" : hyperparameter_ranges,
+                     "base_tuning_job_name" : tuning_job_name_prefix,
+                     "strategy" : "Random"
+                    }
+tuner = HyperparameterTuner(**tuner_config_dict)
+```
+10. Tune the hyperparameters by fitting the model:
+```
+# Setting the input channels for tuning job
+s3_input_train = TrainingInput(s3_data="s3://{}/{}".format(read_bucket, train_data_key), content_type="csv", s3_data_type="S3Prefix")
+s3_input_validation = (TrainingInput(s3_data="s3://{}/{}".format(read_bucket, validation_data_key), 
+                                    content_type="csv", s3_data_type="S3Prefix")
+                      )
+
+tuner.fit(inputs={"train": s3_input_train, "validation": s3_input_validation}, include_cls_metadata=False)
+tuner.wait()
+```
+We can check the Hyperparameter tuning jobs subsection at the AWS StageMaker console to see the info on tuning jobs:
+<p align="center">
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/tuning_jobs.png" width="75%" alt="Hyperparameter tuning jobs"/>
+  <br>
+  <em></em>
+</p>
+
+11. Run the following command to check the tuning summary:
+```
+# Summary of tuning results ordered in descending order of performance
+df_tuner = sagemaker.HyperparameterTuningJobAnalytics(tuner.latest_tuning_job.job_name).dataframe()
+df_tuner = df_tuner[df_tuner["FinalObjectiveValue"]>-float('inf')].sort_values("FinalObjectiveValue", ascending=False)
+df_tuner
+```
+Based on the summary of results, the second set of parameters outperforms others and shows AUC of 0.82:
+<p align="center">
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_tuning_summary.png" width="75%" alt="Tuning"/>
+  <br>
+  <em></em>
+</p>
+13. 
+12. 
+
