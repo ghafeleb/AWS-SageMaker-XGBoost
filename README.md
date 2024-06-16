@@ -205,4 +205,273 @@ By increasing the early_stopping_rounds to 100, our training-AUC improves to 0.9
     </p>
 
 # Train, Tune, and Evaluate a Machine Learning Model (XGBoost)
-This section trains, tunes, and evaluates a machine learning model using Amazon SageMaker Studio and Amazon SageMaker Clarify. We'll use a synthetic auto insurance claims dataset to build a binary classification model with the XGBoost framework, aimed at predicting fraudulent claims. Additionally, you'll learn how to detect bias in your model and understand its predictions, deploy the model to a real-time inference endpoint, and evaluate its performance through sample predictions and feature impact analysis.
+This section trains, tunes, and evaluates a machine learning model using Amazon SageMaker Studio and Amazon SageMaker Clarify. We'll use a synthetic auto insurance claims dataset to build a binary classification model with the XGBoost framework, aimed at predicting fraudulent claims. Additionally, you'll learn how to detect bias in your model and understand its predictions, deploy the model to a real-time inference endpoint, and evaluate its performance through sample predictions and feature impact analysis. Steps:
+1. Open the SageMaker Studio. The instance type of ml.t3.medium would suffice for our purpose. Load Data Science 3.0 image and use Python 3 kernel.
+2. Run the following command to make sure you are using the current version of the SageMaker:
+```
+%pip install sagemaker --upgrade --quiet 
+```
+3. install the dependencies: 
+```
+%pip install -q  xgboost==1.3.1 pandas==1.0.5
+```
+4. Load the packages, including the XGBoost from the built-in framework with a Docker container image:
+```
+import pandas as pd
+import boto3
+import sagemaker
+import json
+import joblib
+from sagemaker.xgboost.estimator import XGBoost
+from sagemaker.tuner import (
+    IntegerParameter,
+    ContinuousParameter,
+    HyperparameterTuner
+)
+from sagemaker.inputs import TrainingInput
+from sagemaker.image_uris import retrieve
+from sagemaker.serializers import CSVSerializer
+from sagemaker.deserializers import CSVDeserializer
+```
+5. Define and set the SageMaker variables and S3 locations, including the location to read the necessary files and the location for writing the output:
+```
+# Setting SageMaker variables
+sess = sagemaker.Session()
+write_bucket = sess.default_bucket()
+write_prefix = "fraud-detect-demo"
+
+region = sess.boto_region_name
+s3_client = boto3.client("s3", region_name=region)
+
+sagemaker_role = sagemaker.get_execution_role()
+sagemaker_client = boto3.client("sagemaker")
+read_bucket = "sagemaker-sample-files"
+read_prefix = "datasets/tabular/synthetic_automobile_claims" 
+
+
+# Setting S3 location for read and write operations
+train_data_key = f"{read_prefix}/train.csv"
+test_data_key = f"{read_prefix}/test.csv"
+validation_data_key = f"{read_prefix}/validation.csv"
+model_key = f"{write_prefix}/model"
+output_key = f"{write_prefix}/output"
+
+
+train_data_uri = f"s3://{read_bucket}/{train_data_key}"
+test_data_uri = f"s3://{read_bucket}/{test_data_key}"
+validation_data_uri = f"s3://{read_bucket}/{validation_data_key}"
+model_uri = f"s3://{write_bucket}/{model_key}"
+output_uri = f"s3://{write_bucket}/{output_key}"
+estimator_output_uri = f"s3://{write_bucket}/{write_prefix}/training_jobs"
+bias_report_output_uri = f"s3://{write_bucket}/{write_prefix}/clarify-output/bias"
+explainability_report_output_uri = f"s3://{write_bucket}/{write_prefix}/clarify-output/explainability"
+```
+6. Run the following command to define the name of the model and the counts and configurations of the training and inference: 
+```
+tuning_job_name_prefix = "xgbtune" 
+training_job_name_prefix = "xgbtrain"
+
+xgb_model_name = "fraud-detect-xgb-model"
+endpoint_name_prefix = "xgb-fraud-model-dev"
+train_instance_count = 1
+train_instance_type = "ml.m4.xlarge"
+predictor_instance_count = 1
+predictor_instance_type = "ml.m4.xlarge"
+clarify_instance_count = 1
+clarify_instance_type = "ml.m4.xlarge"
+```
+## Script Mode Hyperparameter Tuning of the SageMaker Estimator
+7. Define the training process including parameter definition, model creation, training, and performance evaluation as the following script:
+```
+%%writefile xgboost_train.py
+
+import argparse
+import os
+import joblib
+import json
+import pandas as pd
+import xgboost as xgb
+from sklearn.metrics import roc_auc_score
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    # Hyperparameters and algorithm parameters are described here
+    parser.add_argument("--num_round", type=int, default=100)
+    parser.add_argument("--max_depth", type=int, default=3)
+    parser.add_argument("--eta", type=float, default=0.2)
+    parser.add_argument("--subsample", type=float, default=0.9)
+    parser.add_argument("--colsample_bytree", type=float, default=0.8)
+    parser.add_argument("--objective", type=str, default="binary:logistic")
+    parser.add_argument("--eval_metric", type=str, default="auc")
+    parser.add_argument("--nfold", type=int, default=3)
+    parser.add_argument("--early_stopping_rounds", type=int, default=3)
+    
+
+    # SageMaker specific arguments. Defaults are set in the environment variables
+    # Location of input training data
+    parser.add_argument("--train_data_dir", type=str, default=os.environ.get("SM_CHANNEL_TRAIN"))
+    # Location of input validation data
+    parser.add_argument("--validation_data_dir", type=str, default=os.environ.get("SM_CHANNEL_VALIDATION"))
+    # Location where trained model will be stored. Default set by SageMaker, /opt/ml/model
+    parser.add_argument("--model_dir", type=str, default=os.environ.get("SM_MODEL_DIR"))
+    # Location where model artifacts will be stored. Default set by SageMaker, /opt/ml/output/data
+    parser.add_argument("--output_data_dir", type=str, default=os.environ.get("SM_OUTPUT_DATA_DIR"))
+    
+    args = parser.parse_args()
+
+    data_train = pd.read_csv(f"{args.train_data_dir}/train.csv")
+    train = data_train.drop("fraud", axis=1)
+    label_train = pd.DataFrame(data_train["fraud"])
+    dtrain = xgb.DMatrix(train, label=label_train)
+    
+    
+    data_validation = pd.read_csv(f"{args.validation_data_dir}/validation.csv")
+    validation = data_validation.drop("fraud", axis=1)
+    label_validation = pd.DataFrame(data_validation["fraud"])
+    dvalidation = xgb.DMatrix(validation, label=label_validation)
+
+    params = {"max_depth": args.max_depth,
+              "eta": args.eta,
+              "objective": args.objective,
+              "subsample" : args.subsample,
+              "colsample_bytree":args.colsample_bytree
+             }
+    
+    num_boost_round = args.num_round
+    nfold = args.nfold
+    early_stopping_rounds = args.early_stopping_rounds
+    
+    # Define the grid search combinations
+    cv_results = xgb.cv(
+        params=params,
+        dtrain=dtrain,
+        num_boost_round=num_boost_round,
+        nfold=nfold,
+        early_stopping_rounds=early_stopping_rounds,
+        metrics=["auc"],
+        seed=42,
+    )
+    
+    # Define the model to be trained
+    model = xgb.train(params=params, dtrain=dtrain, num_boost_round=len(cv_results))
+    
+    # Train and validate the model
+    train_pred = model.predict(dtrain)
+    validation_pred = model.predict(dvalidation)
+    
+    # Get the train and validation AUC 
+    train_auc = roc_auc_score(label_train, train_pred)
+    validation_auc = roc_auc_score(label_validation, validation_pred)
+    
+    print(f"[0]#011train-auc:{train_auc:.2f}")
+    print(f"[0]#011validation-auc:{validation_auc:.2f}")
+
+    metrics_data = {"hyperparameters" : params,
+                    "binary_classification_metrics": {"validation:auc": {"value": validation_auc},
+                                                      "train:auc": {"value": train_auc}
+                                                     }
+                   }
+              
+    # Save the evaluation metrics to the location specified by output_data_dir
+    metrics_location = args.output_data_dir + "/metrics.json"
+    
+    # Save the model to the location specified by model_dir
+    model_location = args.model_dir + "/xgboost-model"
+
+    with open(metrics_location, "w") as f:
+        json.dump(metrics_data, f)
+
+    with open(model_location, "wb") as f:
+        joblib.dump(model, f)
+```
+7. Instantiate the SageMaker esimator (XGBoost estimatir here):
+```
+# SageMaker estimator
+
+# Set static hyperparameters that will not be tuned
+static_hyperparams = {  
+                        "eval_metric" : "auc",
+                        "objective": "binary:logistic",
+                        "num_round": "5"
+                      }
+
+xgb_estimator = XGBoost(
+                        entry_point="xgboost_train.py",
+                        output_path=estimator_output_uri,
+                        code_location=estimator_output_uri,
+                        hyperparameters=static_hyperparams,
+                        role=sagemaker_role,
+                        instance_count=train_instance_count,
+                        instance_type=train_instance_type,
+                        framework_version="1.3-1",
+                        base_job_name=training_job_name_prefix
+                    )
+```
+8. Tune the hyperparameters at scale:
+```
+# Setting ranges of hyperparameters to be tuned
+hyperparameter_ranges = {
+    "eta": ContinuousParameter(0, 1),
+    "subsample": ContinuousParameter(0.7, 0.95),
+    "colsample_bytree": ContinuousParameter(0.7, 0.95),
+    "max_depth": IntegerParameter(1, 5)
+}
+```
+| Parameter         | Description                                                                                                  |
+|-------------------|--------------------------------------------------------------------------------------------------------------|
+| `eta`             | Step size shrinkage to prevent overfitting. Shrinks feature weights to make boosting more conservative.      |
+| `subsample`       | Ratio of training instances sampled. A value of 0.5 means half of the data is randomly sampled in each iteration, reducing overfitting. |
+| `colsample_bytree`| Fraction of features used per tree. Using a subset of features adds randomness and improves generalizability. |
+| `max_depth`       | Maximum depth of a tree. Higher values increase model complexity and the risk of overfitting.                 |
+
+9. Set the hyperparameter tuner with random search process and AUC as the performance measure:
+```
+objective_metric_name = "validation:auc"
+
+# Setting up tuner object
+tuner_config_dict = {
+                     "estimator" : xgb_estimator,
+                     "max_jobs" : 5,
+                     "max_parallel_jobs" : 2,
+                     "objective_metric_name" : objective_metric_name,
+                     "hyperparameter_ranges" : hyperparameter_ranges,
+                     "base_tuning_job_name" : tuning_job_name_prefix,
+                     "strategy" : "Random"
+                    }
+tuner = HyperparameterTuner(**tuner_config_dict)
+```
+10. Tune the hyperparameters by fitting the model:
+```
+# Setting the input channels for tuning job
+s3_input_train = TrainingInput(s3_data="s3://{}/{}".format(read_bucket, train_data_key), content_type="csv", s3_data_type="S3Prefix")
+s3_input_validation = (TrainingInput(s3_data="s3://{}/{}".format(read_bucket, validation_data_key), 
+                                    content_type="csv", s3_data_type="S3Prefix")
+                      )
+
+tuner.fit(inputs={"train": s3_input_train, "validation": s3_input_validation}, include_cls_metadata=False)
+tuner.wait()
+```
+We can check the Hyperparameter tuning jobs subsection at the AWS StageMaker console to see the info on tuning jobs:
+<p align="center">
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/tuning_jobs.png" width="75%" alt="Hyperparameter tuning jobs"/>
+  <br>
+  <em></em>
+</p>
+
+11. Run the following command to check the tuning summary:
+```
+# Summary of tuning results ordered in descending order of performance
+df_tuner = sagemaker.HyperparameterTuningJobAnalytics(tuner.latest_tuning_job.job_name).dataframe()
+df_tuner = df_tuner[df_tuner["FinalObjectiveValue"]>-float('inf')].sort_values("FinalObjectiveValue", ascending=False)
+df_tuner
+```
+Based on the summary of results, the second set of parameters outperforms others and shows AUC of 0.82:
+<p align="center">
+<img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/xgboost_tuning_summary.png" width="75%" alt="Tuning"/>
+  <br>
+  <em></em>
+</p>
+13. 
+12. 
+
