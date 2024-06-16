@@ -18,7 +18,7 @@ This repository is a collection of tutorial steps that showcase my skills and le
    - [Overfitting Analysis](#overfitting-analysis)
 3. [Train, Tune, and Evaluate a Machine Learning Model (XGBoost)](#train,-tune,-and-evaluate-a-machine-learning-model-(xgboost))
    - [Script Mode Hyperparameter Tuning of the SageMaker Estimator](#script-mode-hyperparameter-tuning-of-the-sagemaker-estimator)
-   - [SageMaker Clarify: Check the Biases of the Model Explain the Model Predictions](#sagemaker-clarify:-check-the-biases-of-the-model-explain-the-model-predictions)
+   - [SageMaker Clarify: Check the Biases of the Model Explain the Model Predictions](#sagemaker-clarify-check-the-biases-of-the-model-explain-the-model-predictions)
    - [Deploy the Model to a Real-time Inference Endpoint](#deploy-the-model-to-a-real-time-inference-endpoint)
 
 ---
