@@ -26,31 +26,51 @@ This repository is a collection of tutorial steps that showcase my skills and le
    - [Deploy the Model to a Real-time Inference Endpoint](#deploy-the-model-to-a-real-time-inference-endpoint)
 
 ---
+# Labeling Data
 
-# Labeling Data 
-In this section, we label samples from  using Amazon Mechanical Turk. To label our image data, we should follow these steps:
-1. Set up the Amazon SageMaker Studio domain
-2. Set up a SageMaker Studio notebook
-3. Create the labeling job
-   
-    3.1. Run the following code in the Jupyter Notebook to download:
-    ```
-    import sagemaker
-    sess = sagemaker.Session
-    bucket = sess.default_bucket()
-    !aws s3 sync s3://sagemaker-sample-files/datasets/image/caltech-101/inference/ s3://{bucket}/ground-truth-demo/images/
-    ```
-    3.2. Assign the labeling job to Amazon Mechanical Turk. The result for the sample data is
-    <p align="center">
-    <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="95%" alt="Labeled data"/>
-      <br>
-      <em></em>
-    </p>
-    Sample JSON Lines format output.manifest for a single image:
-    
-    ```
-    {"source-ref":"s3://****/image_0007.jpeg","vehicle-labeling-demo":3,"vehicle-labeling-demo-metadata":{"class-name":"Helicopter","job-name":"labeling-job/vehicle-labeling-demo","confidence":0.49,"type":"groundtruth/image-classification","human-annotated":"yes","creation-date":"****"}}    
-    ```
+In this section, we demonstrate how to label image samples using Amazon Mechanical Turk integrated with Amazon SageMaker. Proper data labeling is crucial for training accurate and reliable machine learning models. Follow these steps to efficiently label your image data:
+
+## Steps to Label Data
+
+1. **Set Up Amazon SageMaker Studio Domain**:
+   - Ensure your SageMaker Studio domain is configured and ready for use.
+
+2. **Set Up a SageMaker Studio Notebook**:
+   - Launch a new Jupyter notebook in SageMaker Studio to run your code and manage your data.
+
+3. **Create the Labeling Job**:
+   - Download the sample images and prepare them for labeling:
+     ```python
+     import sagemaker
+     sess = sagemaker.Session()
+     bucket = sess.default_bucket()
+     !aws s3 sync s3://sagemaker-sample-files/datasets/image/caltech-101/inference/ s3://{bucket}/ground-truth-demo/images/
+     ```
+   - Assign the labeling job to Amazon Mechanical Turk to get annotations for your images:
+     <p align="center">
+       <img src="https://github.com/ghafeleb/aws-sagemaker/blob/main/images/labeling.png" width="95%" alt="Labeled data"/>
+       <br>
+       <em>Sample labeled data using Amazon Mechanical Turk</em>
+     </p>
+
+## Sample Output
+
+The output from the labeling job is stored in JSON Lines format. Here’s an example of the labeled data for a single image:
+
+```json
+{
+  "source-ref": "s3://****/image_0007.jpeg",
+  "vehicle-labeling-demo": 3,
+  "vehicle-labeling-demo-metadata": {
+    "class-name": "Helicopter",
+    "job-name": "labeling-job/vehicle-labeling-demo",
+    "confidence": 0.49,
+    "type": "groundtruth/image-classification",
+    "human-annotated": "yes",
+    "creation-date": "****"
+  }
+}
+```
 
 #  Build and Train a Machine Learning Model Locally
 This section utilizes the XGBoost framework to prototype a binary classification model to predict fraudulent claims on synthetic auto insurance claims dataset. 
